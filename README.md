@@ -1,2 +1,3 @@
 # RubyBrew
-Inventory manager for my brewing rig
+
+This is my first go at Ruby. I've decided to build an inventory manager for my brewing rig.
