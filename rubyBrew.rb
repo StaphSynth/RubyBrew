@@ -1,4 +1,4 @@
-require "jsonify" #store the inventory in JSON for the moment.
+require "jsonify" #will store the inventory in a file as JSON for the moment.
 
 #Object containing each DB consumable item (malt, hops, yeast)
 class DBItem
@@ -13,7 +13,7 @@ class DBItem
   attr_reader :amount
 
   def print
-    puts @type, @name, @amount.to_s, "\n"
+    puts @type, @name, @amount, "\n"
   end
 end
 
@@ -25,34 +25,50 @@ class ConsumableDB
   end
 
   def add(type, name, amount)
-    consumable = DBItem.new(type, name, amount)
+    consumable = DBItem.new(type.upcase, name, amount)
     @db.push(consumable)
   end
 
   def print(type, *name)
-    i = 0
     case type
     when "all" #print whole db
-      for i in 0...@db.size
-        @db[i].print
+      for item in @db
+        item.print
       end
-    when "hops"
-      for i in 0...@db.size
-        if @db[i].type.eql? "HOPS"
-          @db[i].print
+    when "hops" #when "hops" print only hops
+      for item in @db
+        if item.type.eql? "HOPS"
+          item.print
         end
       end
-    #when "hops" #print only hops
-
-
+    when "yeast" #print all yeast in DB
+      for item in @db
+        if item.type.eql? "YEAST"
+          item.print
+        end
+      end
+    when "malt" #print all malt in DB
+      for item in @db
+        if item.type.eql? "MALT"
+          item.print
+        end
+      end
+    when "name" #for printing specific items by name
+      if name[0] != nil
+        for item in @db
+          if item.name.eql? name[0]
+            item.print
+            break
+          end
+        end
+      end
     end #end case
-
   end #end print
-
 end #end class ConsumableDB
 
 #testing...
 myDB = ConsumableDB.new
-myDB.add("HOPS", "EK GOLDINGS", 100)
+myDB.add("hops", "EK GOLDINGS", 100)
 myDB.add("MALT", "Pale Ale", 15)
+myDB.add "YEAST", "US-05", true
 myDB.print("all")
