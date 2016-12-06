@@ -7,7 +7,7 @@ class DBItem
     @item = data.new(type, name, amount)
   end
 
-  def printItem
+  def print
     puts @item.type, @item.name, @item.amount.to_s, "\n"
   end
 end
@@ -29,7 +29,7 @@ class ConsumableDB
     case type
     when "all" #print whole db
       for i in 0...@db.size
-        @db[i].printItem
+        @db[i].print
       end
     #when "hops" #print only hops
 
