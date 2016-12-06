@@ -1,4 +1,3 @@
-require "jsonify" #will store the inventory in a file as JSON for the moment.
 
 #Object containing each DB consumable item (malt, hops, yeast)
 class DBItem
@@ -18,6 +17,7 @@ class DBItem
 end
 
 #database object. strings DBItems together into an array to perform DB functionality
+#obviously not fast, but brewers will rarely have more than ~100 items anyway
 class ConsumableDB
 
   def initialize
@@ -64,6 +64,21 @@ class ConsumableDB
       end
     end #end case
   end #end print
+
+  def import #reads DB from file. *should create one if db doesn't already exist*
+    dbFile = File.new("db.csv", "r")
+    fileContents = dbFile.readlines
+    puts fileContents[0]
+    puts fileContents[1]
+    dbFile.close
+  end #end import
+
+  def export #write DB to file
+    dbFile = File.new("db.csv", "w")
+    #do some stuff
+    dbFile.close
+  end #end export
+
 end #end class ConsumableDB
 
 #testing...
@@ -71,4 +86,5 @@ myDB = ConsumableDB.new
 myDB.add("hops", "EK GOLDINGS", 100)
 myDB.add("MALT", "Pale Ale", 15)
 myDB.add "YEAST", "US-05", true
-myDB.print("all")
+#myDB.print("all")
+myDB.import
