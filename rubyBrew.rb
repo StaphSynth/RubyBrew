@@ -3,12 +3,17 @@ require "jsonify" #store the inventory in JSON for the moment.
 #Object containing each DB consumable item (malt, hops, yeast)
 class DBItem
   def initialize(type, name, amount)
-    data = Struct.new(:type, :name, :amount)
-    @item = data.new(type, name, amount)
+    @type = type
+    @name = name
+    @amount = amount
   end
 
+  attr_reader :type
+  attr_reader :name
+  attr_reader :amount
+
   def print
-    puts @item.type, @item.name, @item.amount.to_s, "\n"
+    puts @type, @name, @amount.to_s, "\n"
   end
 end
 
@@ -30,6 +35,12 @@ class ConsumableDB
     when "all" #print whole db
       for i in 0...@db.size
         @db[i].print
+      end
+    when "hops"
+      for i in 0...@db.size
+        if @db[i].type.eql? "HOPS"
+          @db[i].print
+        end
       end
     #when "hops" #print only hops
 
