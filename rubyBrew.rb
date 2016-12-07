@@ -23,10 +23,11 @@ class ConsumableDB
   def initialize
     @db = Array.new
     @dbFileName = "db.csv"
+    import
   end
 
   def add(type, name, amount)
-    consumable = DBItem.new(type.upcase, name, amount)
+    consumable = DBItem.new(type.upcase, name.upcase, amount.to_i)
     @db.push(consumable)
   end
 
@@ -80,8 +81,12 @@ class ConsumableDB
       fileContents = dbFile.readlines
       #take each line, split it by ',' marker, and pass the output to the add method
       for line in fileContents
-        pieces = line.split(",")
-        add(pieces[0], pieces[1], pieces[2])
+        if line.size > 1 #if line size is 1, it can be discarded as irrelevant whitespace
+          pieces = line.split(",")
+          add(pieces[0], pieces[1], pieces[2])
+        else
+          break
+        end #end if
       end #end for
     else
       dbFile = File.open(@dbFileName, "w")
@@ -95,7 +100,8 @@ class ConsumableDB
     #loop through DB and assemble each item into a comma-separated string ending in a \n
     #then write that line to the db file
     for item in @db
-      line = item.type + "," + item.name + "," + item.amount.to_s + "\n"
+      line = item.type + "," + item.name + "," + item.amount.to_s
+      # puts "Line to file: " + line
       dbFile.puts line
     end
     dbFile.close
@@ -105,8 +111,10 @@ end #end class ConsumableDB
 
 #testing...
 myDB = ConsumableDB.new
-myDB.import
-puts myDB.size
-myDB.print("name", "EK GOLDINGS")
+
+
+ #myDB.add("HOPS", "GOLDINGS", 100)
+ #myDB.add("MALT", "TRAD ALE", 2400)
+ #myDB.add("YEAST", "1968 Ale", 1)
 
 myDB.export
