@@ -22,6 +22,7 @@ class ConsumableDB
 
   def initialize
     @db = Array.new
+    @dbFileName = "db.csv"
   end
 
   def add(type, name, amount)
@@ -56,7 +57,7 @@ class ConsumableDB
     when "name" #for printing specific items by name
       if name[0] != nil
         for item in @db
-          if item.name.eql? name[0]
+          if item.name.eql? name[0].upcase
             item.print
             break
           end
@@ -65,17 +66,38 @@ class ConsumableDB
     end #end case
   end #end print
 
-  def import #reads DB from file. *should create one if db doesn't already exist*
-    dbFile = File.new("db.csv", "r")
-    fileContents = dbFile.readlines
-    puts fileContents[0]
-    puts fileContents[1]
+  #returns the size of the db
+  def size
+    return @db.size
+  end
+
+  #reads DB from file. Creates a new db file one doesn't already exist
+  def import
+    #if db file exists, read contents, else create one
+    if File.exist?(@dbFileName)
+      dbFile = File.new(@dbFileName, "r")
+      #read lines of file into array called fileContents
+      fileContents = dbFile.readlines
+      #take each line, split it by ',' marker, and pass the output to the add method
+      for line in fileContents
+        pieces = line.split(",")
+        add(pieces[0], pieces[1], pieces[2])
+      end #end for
+    else
+      dbFile = File.open(@dbFileName, "w")
+    end #end if
     dbFile.close
   end #end import
 
-  def export #write DB to file
-    dbFile = File.new("db.csv", "w")
-    #do some stuff
+  #write DB to file
+  def export
+    dbFile = File.new(@dbFileName, "w")
+    #loop through DB and assemble each item into a comma-separated string ending in a \n
+    #then write that line to the db file
+    for item in @db
+      line = item.type + "," + item.name + "," + item.amount.to_s + "\n"
+      dbFile.puts line
+    end
     dbFile.close
   end #end export
 
@@ -83,8 +105,8 @@ end #end class ConsumableDB
 
 #testing...
 myDB = ConsumableDB.new
-myDB.add("hops", "EK GOLDINGS", 100)
-myDB.add("MALT", "Pale Ale", 15)
-myDB.add "YEAST", "US-05", true
-#myDB.print("all")
 myDB.import
+puts myDB.size
+myDB.print("name", "EK GOLDINGS")
+
+myDB.export
