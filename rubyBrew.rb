@@ -15,37 +15,65 @@ class DBconsumableItem
     puts @type, @name, @amount
   end
 
+  def contains?(string)
+    string.upcase
+    if ((string.eql? @type) || (string.eql? @name))
+      return true
+    else
+      return false
+    end
+  end
+
   def print(*param)
     if(param.empty?)
       outputData
     else
       for term in param
-        term = term.upcase
-        if ((term.eql? @type) || (term.eql? @name))
+        if (contains? term)
           outputData
         end
       end
     end
   end
-end
+end #e nd class
+
+#Object containing each DB recipe item
+#HHHHHHHHHHHHHHHMMMMMMMMMMMMMMMM
+class DBrecipeItem
+  def initialize(name, dataArray)
+    @recipe = Db.new("recipe", "rdb.csv")
+    @name = name
+  end
+
+  attr_reader :name
+end #end class
 
 #database object. strings DBItems together into an array to perform DB functionality
 #obviously not fast, but brewers will rarely have more than ~100 items anyway
 class DB
-
-  def initialize (dbFileName)
+  #type is "recipe" or "consumable" depending on what DB objects you need
+  def initialize (type, dbFileName)
     @db = Array.new
+    @type = type
     @dbFileName = dbFileName
     import
   end
 
   def add(dataArray)
-    item = DBconsumableItem.new(dataArray)
+    if @type.eql? "recipe"
+      item = DBrecipeItem.new(dataArray)
+    elsif @type.eql? "consumable"
+      item = DBconsumableItem.new(dataArray)
+    end
     @db.push(item)
   end
 
-  def print(type, *name)
-
+  def print(*param)
+    if(param.empty?)
+      for item in @db
+        item.print
+      end
+    end
   end #end print
 
   #returns the size of the db
@@ -91,14 +119,11 @@ class DB
 end #end class ConsumableDB
 
 #testing...
-#myDB = ConsumableDB.new
+myDB = DB.new "consumable", "cdb.csv"
 
 
- #myDB.add("HOPS", "GOLDINGS", 100)
- #myDB.add("MALT", "TRAD ALE", 2400)
- #myDB.add("YEAST", "1968 Ale", 1)
+myDB.add(["HOPS", "GOLDINGS", 100])
+myDB.add(["MALT", "TRAD ALE", 2400])
+myDB.add(["YEAST", "1968 Ale", 1])
 
-#myDB.export
-
-conItem = DBconsumableItem.new ["hops","EK goldings",100]
-conItem.print
+myDB.print
