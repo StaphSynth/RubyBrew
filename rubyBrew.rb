@@ -29,6 +29,8 @@ class DBconsumableItem
   end
 end
 
+
+
 #database object. strings DBItems together into an array to perform DB functionality
 #obviously not fast, but brewers will rarely have more than ~100 items anyway
 class DB
@@ -90,6 +92,31 @@ class DB
 
 end #end class ConsumableDB
 
+
+class Item
+  def initialize(type, name, amount)
+    @item = {type: type.upcase, name: name.upcase, amount: amount}
+  end
+
+  def outputData
+    puts @item[:type] + "\n" + @item[:name] + "\n" + @item[:amount].to_s + "\n"
+  end
+
+  def print(*param)
+    if(param.empty?)
+      outputData
+    else
+      for term in param
+        term = term.upcase
+        if ((term.eql? @item[:type]) || (term.eql? @item[:name]))
+          outputData
+        end
+      end
+    end
+  end #end print
+
+end #end Item
+
 #testing...
 #myDB = ConsumableDB.new
 
@@ -100,5 +127,5 @@ end #end class ConsumableDB
 
 #myDB.export
 
-conItem = DBconsumableItem.new ["hops","EK goldings",100]
-conItem.print
+conItem = Item.new "hops","EK goldings",100
+conItem.print 
