@@ -1,54 +1,4 @@
 
-#Object containing each DB consumable item (malt, hops, yeast)
-class DBconsumableItem
-  def initialize(dataArray)
-    @type = dataArray[0].upcase
-    @name = dataArray[1].upcase
-    @amount = dataArray[2].to_i
-  end
-
-  attr_reader :type
-  attr_reader :name
-  attr_reader :amount
-
-  def outputData
-    puts @type, @name, @amount
-  end
-
-  def contains?(string)
-    string.upcase
-    if ((string.eql? @type) || (string.eql? @name))
-      return true
-    else
-      return false
-    end
-  end
-
-  def print(*param)
-    if(param.empty?)
-      outputData
-    else
-      for term in param
-        if (contains? term)
-          outputData
-        end
-      end
-    end
-  end
-end #e nd class
-
-#Object containing each DB recipe item
-#HHHHHHHHHHHHHHHMMMMMMMMMMMMMMMM
-class DBrecipeItem
-  def initialize(name, dataArray)
-    @recipe = Db.new("recipe", "rdb.csv")
-    @name = name
-  end
-
-  attr_reader :name
-end #end class
-
-
 
 #database object. strings DBItems together into an array to perform DB functionality
 #obviously not fast, but brewers will rarely have more than ~100 items anyway
@@ -65,7 +15,7 @@ class DB
     if @type.eql? "recipe"
       item = DBrecipeItem.new(dataArray)
     elsif @type.eql? "consumable"
-      item = DBconsumableItem.new(dataArray)
+      item = Item.new(dataArray)
     end
     @db.push(item)
   end
@@ -121,6 +71,9 @@ class DB
 end #end class ConsumableDB
 
 
+#========================== FROM HERE DOWN ===========================================
+
+#ITEM CLASS object for consumable items: malt, hops, yeast, etc
 class Item
   def initialize(type, name, amount)
     @item = {type: type.upcase, name: name.upcase, amount: amount}
@@ -135,7 +88,7 @@ class Item
       outputData
     else
       for term in param
-        term = term.upcase
+        term = term.to_s.upcase
         if ((term.eql? @item[:type]) || (term.eql? @item[:name]))
           outputData
         end
@@ -145,17 +98,59 @@ class Item
 
 end #end Item
 
+#strings consumable Items together into an array.
+#can be used to store a list of ingredients for either an inventory or a recipe
+class ItemArray
+
+  def initialize
+    @items = Array.new
+  end
+
+  #accepts an item object to add to the array
+  def add(item)
+    @items.push(item)
+  end
+
+  def print(*param)
+    for item in @items
+      item.print(*param)
+    end
+  end #end print
+
+end #end ItemArray class
+
+#a Recipe is simply an array of consumable items with a method string
+class Recipe
+  #name and method are strings
+  #items is an ItemArray object
+  def initialize(name, items, method)
+    @name = name.upcase
+    @ingredients = items
+    @method = method
+  end
+
+  def print
+    puts @name + "\n" + "==============\nINGREDIENTS:\n"
+    @ingredients.print
+    puts "METHOD\n" + @method
+  end
+end #end recipe class
+
+
+
 #testing...
-myDB = DB.new "consumable", "cdb.csv"
 
 
-myDB.add(["HOPS", "GOLDINGS", 100])
-myDB.add(["MALT", "TRAD ALE", 2400])
-myDB.add(["YEAST", "1968 Ale", 1])
+hops = Item.new "hops","EK goldings",40
+malt = Item.new "malt","Pale Ale",3500
+malt2 = Item.new "malt","med crystal",250
 
-<<<<<<< HEAD
-conItem = Item.new "hops","EK goldings",100
-conItem.print 
-=======
-myDB.print
->>>>>>> 66fac6ef8a90cd09b84008d7aab7e88af9cbcb23
+
+# conItem.print
+itemDB = ItemArray.new
+itemDB.add(hops)
+itemDB.add(malt)
+itemDB.add(malt2)
+
+paleAle = Recipe.new "British Ale",itemDB,"Crush malt, mash, boil, add hops, yadda yadda yadda"
+paleAle.print
