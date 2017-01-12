@@ -2,7 +2,7 @@
 
 #database object. strings DBItems together into an array to perform DB functionality
 #obviously not fast, but brewers will rarely have more than ~100 items anyway
-class DB
+class OldDB
   #type is "recipe" or "consumable" depending on what DB objects you need
   def initialize (type, dbFileName)
     @db = Array.new
@@ -74,7 +74,7 @@ end #end class ConsumableDB
 #========================== FROM HERE DOWN ===========================================
 
 #ITEM CLASS object for consumable items: malt, hops, yeast, etc
-class Item
+class Consumable
   def initialize(type, name, amount)
     @item = {type: type.upcase, name: name.upcase, amount: amount}
   end
@@ -94,9 +94,9 @@ class Item
         end
       end
     end
-  end #end print
+  end #print
 
-end #end Item
+end #Item
 
 #strings consumable Items together into an array.
 #can be used to store a list of ingredients for either an inventory or a recipe
@@ -115,9 +115,9 @@ class ItemArray
     for item in @items
       item.print(*param)
     end
-  end #end print
+  end #print
 
-end #end ItemArray class
+end #ItemArray class
 
 #a Recipe is simply an array of consumable items with a method string
 class Recipe
@@ -130,27 +130,75 @@ class Recipe
   end
 
   def print
-    puts @name + "\n" + "==============\nINGREDIENTS:\n"
+    puts @name + "\n" + "-----------\nINGREDIENTS:\n"
     @ingredients.print
-    puts "METHOD\n" + @method
+    puts "METHOD:\n" + @method
   end
 end #end recipe class
 
+class DB
+  def initialize(dbFileName)
+    @recipes = Array.new
+    @stock = Array.new
+    @dbFileName = dbFileName
+    #import
+  end
 
+  def import
+  end #import
+
+  def export
+  end #export
+
+  #adds an item to the DB (duh)
+  #item is either a Recipe or Item object
+  def add(item)
+    if item.is_a?(Recipe)
+      @recipes.push(item)
+    elsif item.is_a?(Consumable)
+      @stock.push(item)
+    end
+  end # add
+
+  def find(query)
+    query = query.upcase
+
+  end #find
+
+  def print(type)
+    type = type.upcase
+    if type.eql? "RECIPE"
+      puts @recipes.length.to_s + " Recipe(s) on File\n=================="
+      for recipe in @recipes
+        recipe.print
+      end
+    elsif type.eql? "STOCK"
+      for stock in @stock
+        stock.print
+      end
+    end
+  end #print
+
+end #DB class
 
 #testing...
 
 
-hops = Item.new "hops","EK goldings",40
-malt = Item.new "malt","Pale Ale",3500
-malt2 = Item.new "malt","med crystal",250
+hops = Consumable.new "hops","EK goldings",40
+malt = Consumable.new "malt","Pale Ale",3500
+malt2 = Consumable.new "malt","med crystal",250
 
 
-# conItem.print
 itemDB = ItemArray.new
 itemDB.add(hops)
 itemDB.add(malt)
 itemDB.add(malt2)
 
 paleAle = Recipe.new "British Ale",itemDB,"Crush malt, mash, boil, add hops, yadda yadda yadda"
-paleAle.print
+
+myDB = DB.new("somefile.file")
+myDB.add(hops)
+myDB.add(malt)
+myDB.add(malt2)
+myDB.add(paleAle)
+myDB.print("RECIPE")
