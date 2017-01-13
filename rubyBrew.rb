@@ -96,6 +96,15 @@ class Consumable
     end
   end #print
 
+  #returns true if the Consumalbe object contains the term being looked for, else false
+  def me?(term)
+    term = term.upcase
+    if((term.eql? @item[:type]) || (term.eql? @item[:name]))
+      return true
+    else
+      return false
+    end
+  end #me?
 end #Item
 
 #strings consumable Items together into an array.
@@ -111,12 +120,15 @@ class ItemArray
     @items.push(item)
   end
 
+  def length
+    return @items.length
+  end
+
   def print(*param)
     for item in @items
       item.print(*param)
     end
   end #print
-
 end #ItemArray class
 
 #a Recipe is simply an array of consumable items with a method string
@@ -134,7 +146,20 @@ class Recipe
     @ingredients.print
     puts "METHOD:\n" + @method
   end
+
+  #returns true if the Recipe object's name matches the term being looked for, else false
+  def me?(term)
+    term = term.upcase
+    if(term.eql? @name)
+      return true
+    else
+      return false
+    end
+  end #me?
 end #end recipe class
+
+
+
 
 class DB
   def initialize(dbFileName)
@@ -160,9 +185,24 @@ class DB
     end
   end # add
 
+  #returns an ItemArray of DB items that match a search query
   def find(query)
-    query = query.upcase
-
+    found = ItemArray.new
+    for recipe in @recipes
+      if recipe.me?(query)
+        found.add(recipe)
+      end
+    end
+    for item in @stock
+      if item.me?(query)
+        found.add(item)
+      end
+    end
+    if found.length > 0
+      return found
+    else
+      return false
+    end
   end #find
 
   def print(type)
@@ -178,7 +218,6 @@ class DB
       end
     end
   end #print
-
 end #DB class
 
 #testing...
@@ -201,4 +240,7 @@ myDB.add(hops)
 myDB.add(malt)
 myDB.add(malt2)
 myDB.add(paleAle)
-myDB.print("RECIPE")
+# myDB.print("RECIPE")
+blah = myDB.find("british ale")
+
+blah.print
