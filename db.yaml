@@ -1,0 +1,42 @@
+--- !ruby/object:DB
+recipes:
+- !ruby/object:Recipe
+  name: BRITISH ALE
+  ingredients: !ruby/object:ItemArray
+    items:
+    - &1 !ruby/object:Consumable
+      item:
+        :type: HOPS
+        :name: EK GOLDINGS
+        :amount: 40
+    - &2 !ruby/object:Consumable
+      item:
+        :type: MALT
+        :name: PALE ALE
+        :amount: 3500
+    - &3 !ruby/object:Consumable
+      item:
+        :type: MALT
+        :name: MED CRYSTAL
+        :amount: 250
+  method: Crush malt, mash, boil, add hops, yadda yadda yadda
+stock:
+- !ruby/object:Consumable
+  item:
+    :type: MALT
+    :name: WHEAT
+    :amount: 3000
+- !ruby/object:Consumable
+  item:
+    :type: MALT
+    :name: DARK CRYSTAL
+    :amount: 2000
+- !ruby/object:Consumable
+  item:
+    :type: HOPS
+    :name: GALAXY
+    :amount: 100
+- *1
+- *2
+- *3
+dbFileName: db.yaml
