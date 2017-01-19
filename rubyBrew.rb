@@ -104,8 +104,6 @@ class DB
   def initialize(dbFileName)
     @recipes = Array.new
     @stock = Array.new
-    @dbFileName = dbFileName
-    #import
   end
 
   #returns the entire DB as a string
@@ -132,18 +130,17 @@ class DB
   end # add
 
   #imports DB from file. If no db file exists, it creates one
-  def import
-    if(File.exist? @dbFileName)
-      dbFile = File.open @dbFileName, "r"
-    #  self = YAML::load dbFile.read
+  def self.import(filename)
+    if(File.exist? filename)
+      return YAML::load(File.open(filename,"r"){|file| file.read})
     else
-      dbFile = File.open @dbFileName, "w"
+      dbFile = File.open filename, "w"
+      dbFile.close
     end #if
-    dbFile.close
   end #import
 
-  def export
-    dbFile = File.new @dbFileName, "w"
+  def export(filename)
+    dbFile = File.new filename, "w"
     dbFile.puts YAML::dump self
     dbFile.close
   end #export
@@ -212,7 +209,7 @@ myDB.add(malt)
 myDB.add(malt2)
 myDB.add(paleAle)
 
-myDB.export
+myDB.export "db.yaml"
 
 # myDB.print("RECIPE")
 # blah = myDB.find("british ale")
@@ -222,7 +219,7 @@ myDB.export
 serial = YAML::dump myDB
 # puts serial + "\n\n"
 db2 = DB.new "db.yaml"
-db2 = YAML::load(File.open("db.yaml","r"){|f| f.read})
+db2 = DB.import "db.yaml"
 puts "DB2:\n#{db2}"
 
 puts "\n\nTO_S TEST\n\n"
