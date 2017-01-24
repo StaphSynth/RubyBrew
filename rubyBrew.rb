@@ -12,6 +12,11 @@ class Consumable
     return "#{@item[:type]} #{@item[:name]} #{@item[:amount]}"
   end
 
+  #returns only the name of the item as a string
+  def name
+    return "#{@item[:name]}"
+  end
+
   def print(*param)
     if(param.empty?)
       puts to_s
@@ -79,8 +84,14 @@ class Recipe
     @method = method
   end
 
+  #stringifies the recipe and returns the string
   def to_s
     return "#{@name}\n#{@ingredients.to_s}#{@method}\n"
+  end
+
+  #returns the name of the recipe as a string
+  def name
+    return "#{@name}"
   end
 
   def print
@@ -145,17 +156,17 @@ class DB
     dbFile.close
   end #export
 
-  #returns an ItemArray of DB items that match a search query
+  #returns an array of DB items that match a search query
   def find(query)
-    found = ItemArray.new
+    found = Array.new
     for recipe in @recipes
       if recipe.me?(query)
-        found.add(recipe)
+        found.push(recipe)
       end
     end
     for item in @stock
       if item.me?(query)
-        found.add(item)
+        found.push(item)
       end
     end
     if found.length > 0
@@ -185,13 +196,55 @@ def view(db)
   puts db
 end
 
+#returns a list of the names of all objects in the db that satisfy "type"
+def listItems(type, db)
+  #extract an array of objects of the required type
+  tempList = db.find type
+  #strip their names and return them as an array
+  names = []
+  for item in tempList
+    names.push item.name
+  end #for
+  #check to make sure there's something in the array. Return false if there isn't
+  if names.length > 0
+    return names
+  else
+   return false
+  end #if
+end #listItems
+
 #pass a string to indicate what sort of DB object you want it to make
+#function takes user input, build item and adds it to the db
 def newItem(type, db)
   type = type.upcase
-  responseArray = []
+  responseArray = Array.new
+  recipeItems = ItemArray.new
+
   case type
+  #uses user input to create a recipe object
   when "RECIPE"
+    responseArray.push(ask("Recipe name: ", String))
+    cm = HighLine.new
+    choiceList = listItems "MALT", db
+    choiceList.push "DONE"
+    loop do
+      cm.choose do |malt|
+        malt.prompt = "Select a malt: "
+        malt.choices(*choiceList) do |chosen|
+          if chosen != choiceList.last
+            recipeItems.add(db.find(chosen))
+          else
+            #testing...
+            puts "recipeItems is a: " + recipeItems.class.to_s + "\n"
+            puts recipeItems.to_s
+            break #why can't I break here?
+          end #if
+        end #|chosen|
+      end #malt choice
+    end #loop
+
     return
+  #uses user input to create a Consumable object and add it to the db
   when "STOCK"
     responseArray.push(ask("Stock type (hops, yeast, malt)? ", String))
     responseArray.push(ask("Name of the item: ", String))
@@ -215,7 +268,7 @@ def add(db)
           newItem "STOCK", db
           return
         when selection[1]
-          puts "You chose #{selection[1]}"
+          newItem "RECIPE", db
           return
         end #case
       end #|chosen|
