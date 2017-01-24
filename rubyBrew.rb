@@ -1,4 +1,5 @@
 require "yaml"
+require "highline/import"
 
 #object for consumable items: malt, hops, yeast, etc
 class Consumable
@@ -101,8 +102,7 @@ end #end recipe class
 
 
 class DB
-  def initialize(dbFileName)
-    @recipes = Array.new
+  def initialize
     @stock = Array.new
   end
 
@@ -181,46 +181,64 @@ class DB
 end #DB class
 
 
-#testing...
+def view(db)
+  puts db
+end
 
-hops = Consumable.new "hops","EK goldings",40
-malt = Consumable.new "malt","Pale Ale",3500
-malt2 = Consumable.new "malt","med crystal",250
+#pass a string to indicate what sort of DB object you want it to make
+def newItem(type, db)
+  type = type.upcase
+  responseArray = []
+  case type
+  when "RECIPE"
+    return
+  when "STOCK"
+    responseArray.push(ask("Stock type (hops, yeast, malt)? ", String))
+    responseArray.push(ask("Name of the item: ", String))
+    responseArray.push(ask("Amount (in grams): ", Integer))
+    stockItem = Consumable.new *responseArray
+    db.add stockItem
+    return
+  end #case
+end #newItem
 
-smalt1 = Consumable.new "malt","wheat",3000
-smalt2 = Consumable.new "malt","dark crystal",2000
-s_hop1 = Consumable.new "hops","Galaxy",100
+#function to add items to the db. Uses its own highline sub-menu
+def add(db)
+  am = HighLine.new
+  selection = ["Add a consumable stock item", "Add a recipe"]
+  loop do
+    am.choose do |menu|
+      menu.prompt = "What would you like to add? "
+      menu.choices(*selection) do |chosen|
+        case chosen
+        when selection[0]
+          newItem "STOCK", db
+          return
+        when selection[1]
+          puts "You chose #{selection[1]}"
+          return
+        end #case
+      end #|chosen|
+    end #|menu|
+  end #loop
+end
 
+#main menu using highline https://github.com/JEG2/highline
+def main(db)
+  mm = HighLine.new
+  loop do
+    mm.choose do |menu|
+      menu.header = "\nRUBY BREW 0.1\n============="
+      menu.prompt = "What would you like to do?  "
+      menu.choice(:View_DB) { puts db }
+      menu.choice(:Add) {add db}
+      menu.choice(:Exit) {db.export "db.yaml"
+                          exit}
+      menu.default = :View_DB
+    end
+  end
+end
 
-itemDB = ItemArray.new
-itemDB.add(hops)
-itemDB.add(malt)
-itemDB.add(malt2)
-# puts itemDB
-
-paleAle = Recipe.new "British Ale",itemDB,"Crush malt, mash, boil, add hops, yadda yadda yadda"
-
-myDB = DB.new("db.yaml")
-myDB.add smalt1
-myDB.add smalt2
-myDB.add s_hop1
-myDB.add(hops)
-myDB.add(malt)
-myDB.add(malt2)
-myDB.add(paleAle)
-
-myDB.export "db.yaml"
-
-# myDB.print("RECIPE")
-# blah = myDB.find("british ale")
-# blah.print
-# myDB.print("STOCK")
-
-serial = YAML::dump myDB
-# puts serial + "\n\n"
-db2 = DB.new "db.yaml"
-db2 = DB.import "db.yaml"
-puts "DB2:\n#{db2}"
-
-puts "\n\nTO_S TEST\n\n"
-puts db2.to_s
+myDB = DB.new
+myDB = DB.import "db.yaml"
+main myDB
