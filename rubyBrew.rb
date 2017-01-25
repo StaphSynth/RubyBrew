@@ -255,9 +255,8 @@ def newItem(type, db)
     for item in items
       recipeItems.add item
     end
-    responseArray.push recipeItems
     responseArray.push(ask("Type the method: "))
-    newRecipe = Recipe.new responseArray[0], responseArray[1], responseArray[2]
+    newRecipe = Recipe.new responseArray[0], recipeItems, responseArray[1]
     db.add newRecipe
     return
   #uses user input to create a Consumable object and add it to the db
