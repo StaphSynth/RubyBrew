@@ -213,41 +213,57 @@ def listItems(type, db)
   end #if
 end #listItems
 
+#takes user input to assemble a list of consumable items and returns
+#an array of the selected items. Used for assembling the items in recipes
+def assembleItems(type, db)
+  type = type.upcase
+  items = Array.new
+  im = HighLine.new
+  #produce a list of items to choose from
+  choiceList = listItems(type, db)
+  choiceList.push "DONE"
+  #don't know how many items the user will require, so infinite loop until done, then return
+  loop do
+    im.choose do |item|
+      item.prompt = "Select a #{type}: "
+      item.choices(*choiceList) do |chosen|
+        if chosen == choiceList.last
+          return items
+        else
+          items.push(db.find(chosen))
+        end #if
+      end #|chosen|
+    end #|item|
+  end #loop
+end #assembleItems
+
 #pass a string to indicate what sort of DB object you want it to make
 #function takes user input, build item and adds it to the db
 def newItem(type, db)
   type = type.upcase
   responseArray = Array.new
+  items = Array.new
   recipeItems = ItemArray.new
 
   case type
   #uses user input to create a recipe object
   when "RECIPE"
-    responseArray.push(ask("Recipe name: ", String))
-    cm = HighLine.new
-    choiceList = listItems "MALT", db
-    choiceList.push "DONE"
-    loop do
-      cm.choose do |malt|
-        malt.prompt = "Select a malt: "
-        malt.choices(*choiceList) do |chosen|
-          if chosen != choiceList.last
-            recipeItems.add(db.find(chosen))
-          else
-            #testing...
-            puts "recipeItems is a: " + recipeItems.class.to_s + "\n"
-            puts recipeItems.to_s
-            break #why can't I break here?
-          end #if
-        end #|chosen|
-      end #malt choice
-    end #loop
-
+    responseArray.push(ask("Recipe name: "))
+    items.concat assembleItems "MALT", db
+    items.concat assembleItems "HOPS", db
+    items.concat assembleItems "YEAST", db
+    for item in items
+      recipeItems.add item
+    end
+    responseArray.push recipeItems
+    responseArray.push(ask("Type the method: "))
+    newRecipe = Recipe.new responseArray[0], responseArray[1], responseArray[2]
+    db.add newRecipe
     return
   #uses user input to create a Consumable object and add it to the db
   when "STOCK"
-    responseArray.push(ask("Stock type (hops, yeast, malt)? ", String))
-    responseArray.push(ask("Name of the item: ", String))
+    responseArray.push(ask("Stock type (hops, yeast, malt)? "))
+    responseArray.push(ask("Name of the item: "))
     responseArray.push(ask("Amount (in grams): ", Integer))
     stockItem = Consumable.new *responseArray
     db.add stockItem
