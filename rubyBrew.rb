@@ -276,13 +276,13 @@ def add(db)
   end #loop
 end
 
-#main menu using highline https://github.com/JEG2/highline
+#main menu and program control
 def main(db)
   selection = ["View Database", "Add to Database", "Modify an Item", "Exit"]
   mm = HighLine.new
   loop do
     mm.choose do |menu|
-      menu.header = "\nRUBY BREW 0.1\n============="
+      menu.header = "\nRUBY BREW v0.1\n============="
       menu.prompt = "What would you like to do?  "
       menu.choices(*selection) do |chosen|
         case chosen
@@ -292,7 +292,7 @@ def main(db)
           add db
         when selection[2]
           #modify db
-        when selection[3]
+        when selection.last
           db.export "db.yaml"
           exit
         end #case
