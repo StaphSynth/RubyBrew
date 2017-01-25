@@ -278,18 +278,27 @@ end
 
 #main menu using highline https://github.com/JEG2/highline
 def main(db)
+  selection = ["View Database", "Add to Database", "Modify an Item", "Exit"]
   mm = HighLine.new
   loop do
     mm.choose do |menu|
       menu.header = "\nRUBY BREW 0.1\n============="
       menu.prompt = "What would you like to do?  "
-      menu.choice(:View_DB) { puts db }
-      menu.choice(:Add) {add db}
-      menu.choice(:Exit) {db.export "db.yaml"
-                          exit}
-      menu.default = :View_DB
-    end
-  end
+      menu.choices(*selection) do |chosen|
+        case chosen
+        when selection[0]
+          puts db.to_s
+        when selection[1]
+          add db
+        when selection[2]
+          #modify db
+        when selection[3]
+          db.export "db.yaml"
+          exit
+        end #case
+      end #|chosen|
+    end #|menu|
+  end #loop
 end
 
 myDB = DB.new

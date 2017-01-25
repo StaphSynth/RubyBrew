@@ -35,6 +35,11 @@ stock:
     :type: !ruby/string:HighLine::String YEAST
     :name: !ruby/string:HighLine::String QWERTY
     :amount: 12
+- !ruby/object:Consumable
+  item:
+    :type: !ruby/string:HighLine::String HOPS
+    :name: !ruby/string:HighLine::String '123'
+    :amount: 10
 recipes:
 - !ruby/object:Recipe
   name: BRITISH ALE
