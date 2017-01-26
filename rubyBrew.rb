@@ -1,5 +1,6 @@
 require "yaml"
 require "highline/import"
+require "pry"
 
 #object for consumable items: malt, hops, yeast, etc
 class Consumable
@@ -255,6 +256,7 @@ def newItem(type, db)
     for item in items
       recipeItems.add item
     end
+    binding.pry
     responseArray.push(ask("Type the method: "))
     newRecipe = Recipe.new responseArray[0], recipeItems, responseArray[1]
     db.add newRecipe
