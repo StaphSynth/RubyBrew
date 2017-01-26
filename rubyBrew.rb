@@ -231,7 +231,7 @@ def assembleItems(type, db)
         if chosen == choiceList.last
           return items
         else
-          items.push(db.find(chosen))
+          items.concat(db.find(chosen))
         end #if
       end #|chosen|
     end #|item|
@@ -256,7 +256,6 @@ def newItem(type, db)
     for item in items
       recipeItems.add item
     end
-    binding.pry
     responseArray.push(ask("Type the method: "))
     newRecipe = Recipe.new responseArray[0], recipeItems, responseArray[1]
     db.add newRecipe
