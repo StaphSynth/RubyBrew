@@ -192,28 +192,6 @@ class DB
   end #print
 end #DB class
 
-
-def view(db)
-  puts db
-end
-
-#returns a list of the names of all objects in the db that satisfy "type"
-def listItems(type, db)
-  #extract an array of objects of the required type
-  tempList = db.find type
-  #strip their names and return them as an array
-  names = []
-  for item in tempList
-    names.push item.name
-  end #for
-  #check to make sure there's something in the array. Return false if there isn't
-  if names.length > 0
-    return names
-  else
-   return false
-  end #if
-end #listItems
-
 #takes user input to assemble a list of consumable items and returns
 #an array of the selected items. Used for assembling the items in recipes
 def assembleItems(type, db)
@@ -231,15 +209,15 @@ def assembleItems(type, db)
         if chosen == choiceList.last
           return items
         else
-          items.concat(db.find(chosen))
+          items = db.find(chosen)
         end #if
       end #|chosen|
     end #|item|
   end #loop
 end #assembleItems
 
-#pass a string to indicate what sort of DB object you want it to make
-#function takes user input, build item and adds it to the db
+#pass a string to indicate what sort of DB object you want it to make (recipe or stock).
+#function takes user input, builds item and adds it to the db
 def newItem(type, db)
   type = type.upcase
   responseArray = Array.new
