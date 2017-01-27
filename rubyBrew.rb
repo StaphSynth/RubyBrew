@@ -279,8 +279,7 @@ def newItem(type, db)
     responseArray.push(ask("Stock type (hops, yeast, malt)? "))
     responseArray.push(ask("Name of the item: "))
     responseArray.push(ask("Amount (in grams): ", Integer))
-    stockItem = Consumable.new *responseArray
-    db.add stockItem
+    db.add Consumable.new *responseArray
     return
   end #case
 end #newItem
