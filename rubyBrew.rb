@@ -211,18 +211,25 @@ class DB
   end #print
 end #DB class
 
+#used to generate choices in a selection menu based on what's in the db
+#returns an array of strings that represent the choices available to the user
+def generateChoices(query, db)
+  choiceList = Array.new
+  tempList = db.find query
+  for item in tempList
+    choiceList.push(item.name)
+  end
+  return choiceList
+end #generateChoices
+
 #takes user input to assemble a list of consumable items and returns
 #an array of the selected items. Used for assembling the items in recipes
 def assembleItems(type, db)
   type = type.upcase
   items = Array.new
-  choiceList = Array.new
   im = HighLine.new
   #produce a list of items to choose from
-  tempList = db.find type
-  for item in tempList
-    choiceList.push(item.name)
-  end
+  choiceList = generateChoices(type, db)
   choiceList.push "DONE"
   #don't know how many items the user will require, so infinite loop until done, then return
   loop do
@@ -277,7 +284,7 @@ def newItem(type, db)
   end #case
 end #newItem
 
-#function to add items to the db. Uses its own highline sub-menu
+#function to add items to the db.
 def add(db)
   am = HighLine.new
   selection = ["Add a consumable stock item", "Add a recipe"]
