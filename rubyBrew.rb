@@ -40,6 +40,25 @@ class Consumable
       return false
     end
   end #me?
+
+  #modifies the Consumable object (duh)
+  #takes up to two parameters: a string for the name, and an integer for the amount
+  def modify(*param)
+    #rudimentary error checking. needs to be improved
+    if param.empty?
+      return false
+    elsif param.length > 2
+      return false
+    end
+
+    for parameter in param
+      if parameter.is_a?(String)
+        @item[:name] = parameter.upcase
+      elsif parameter.is_a?(Integer)
+        @item[:amount] = parameter
+      end
+    end #for
+  end #modify
 end #Consumable
 
 #strings consumable Items together into an array.
@@ -197,19 +216,28 @@ end #DB class
 def assembleItems(type, db)
   type = type.upcase
   items = Array.new
+  choiceList = Array.new
   im = HighLine.new
   #produce a list of items to choose from
-  choiceList = listItems(type, db)
+  tempList = db.find type
+  for item in tempList
+    choiceList.push(item.name)
+  end
   choiceList.push "DONE"
   #don't know how many items the user will require, so infinite loop until done, then return
   loop do
     im.choose do |item|
       item.prompt = "Select a #{type}: "
       item.choices(*choiceList) do |chosen|
-        if chosen == choiceList.last
+        if chosen == choiceList.last #choiceList.last == DONE
           return items
         else
           items = db.find(chosen)
+          if((type.eql? "MALT") || (type.eql? "HOPS"))
+            items.last.modify(items.last.name, ask("Please enter the amount of #{items.last.name} in grams: ", Integer))
+          elsif(type.eql? "YEAST")
+            return items
+          end
         end #if
       end #|chosen|
     end #|item|
