@@ -239,7 +239,7 @@ def assembleItems(type, db)
         if chosen == choiceList.last #choiceList.last == DONE
           return items
         else
-          items = db.find(chosen)
+          items.concat(db.find(chosen))
           if((type.eql? "MALT") || (type.eql? "HOPS"))
             items.last.modify(items.last.name, ask("Please enter the amount of #{items.last.name} in grams: ", Integer))
           elsif(type.eql? "YEAST")
