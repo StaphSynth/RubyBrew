@@ -230,6 +230,7 @@ def assembleItems(type, db)
   im = HighLine.new
   #produce a list of items to choose from
   choiceList = generateChoices(type, db)
+  choiceList.push("Create new #{type}")
   choiceList.push "DONE"
   #don't know how many items the user will require, so infinite loop until done, then return
   loop do
@@ -238,6 +239,11 @@ def assembleItems(type, db)
       item.choices(*choiceList) do |chosen|
         if chosen == choiceList.last #choiceList.last == DONE
           return items
+        elsif chosen == choiceList[-2] #if create new
+          newItem "STOCK", db
+          choiceList = generateChoices(type, db)
+          choiceList.push("Create new #{type}")
+          choiceList.push("DONE")
         else
           items.concat(db.find(chosen))
           if((type.eql? "MALT") || (type.eql? "HOPS"))
