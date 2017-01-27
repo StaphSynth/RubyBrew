@@ -266,12 +266,13 @@ def newItem(type, db)
     items.concat assembleItems "MALT", db
     items.concat assembleItems "HOPS", db
     items.concat assembleItems "YEAST", db
+    #stick all the selected items together into an ItemArray to create the new recipe
     for item in items
       recipeItems.add item
     end
+    responseArray.push recipeItems
     responseArray.push(ask("Type the method: "))
-    newRecipe = Recipe.new responseArray[0], recipeItems, responseArray[1]
-    db.add newRecipe
+    db.add Recipe.new *responseArray
     return
   #uses user input to create a Consumable object and add it to the db
   when "STOCK"
