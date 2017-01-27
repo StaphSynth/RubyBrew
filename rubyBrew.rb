@@ -256,18 +256,20 @@ end #assembleItems
 def newItem(type, db)
   type = type.upcase
   responseArray = Array.new
-  items = Array.new
+  selectedItems = Array.new
   recipeItems = ItemArray.new
+  stockTypes = ["MALT", "HOPS", "YEAST"]
 
   case type
   #uses user input to create a recipe object
   when "RECIPE"
     responseArray.push(ask("Recipe name: "))
-    items.concat assembleItems "MALT", db
-    items.concat assembleItems "HOPS", db
-    items.concat assembleItems "YEAST", db
+    #cycle through the different stock types available and ask the user to make selections
+    for stockType in stockTypes
+      selectedItems.concat(assembleItems(stockType, db))
+    end
     #stick all the selected items together into an ItemArray to create the new recipe
-    for item in items
+    for item in selectedItems
       recipeItems.add item
     end
     responseArray.push recipeItems
@@ -276,9 +278,15 @@ def newItem(type, db)
     return
   #uses user input to create a Consumable object and add it to the db
   when "STOCK"
-    responseArray.push(ask("Stock type (hops, yeast, malt)? "))
-    responseArray.push(ask("Name of the item: "))
-    responseArray.push(ask("Amount (in grams): ", Integer))
+    tm = HighLine.new
+    tm.choose do |stockType|
+      stockType.prompt = "Select a stock category to add: "
+      stockType.choices(*stockTypes) do |chosen|
+        responseArray.push(chosen)
+        responseArray.push(ask("Name of the item: "))
+        responseArray.push(ask("Amount (in grams): ", Integer))
+      end
+    end
     db.add Consumable.new *responseArray
     return
   end #case
