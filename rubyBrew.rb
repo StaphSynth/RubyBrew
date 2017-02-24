@@ -31,10 +31,12 @@ class Consumable
     end
   end #print
 
-  #returns true if the Consumalbe object contains the term being looked for, else false
+  #returns true if the Consumable object contains the term being looked for, else false
   def me?(term)
     term = term.upcase
-    if((term.eql? @item[:type]) || (term.eql? @item[:name]))
+    if(term.eql? "*")
+      return true
+    elsif((term.eql? @item[:type]) || (term.eql? @item[:name]))
       return true
     else
       return false
@@ -121,15 +123,15 @@ class Recipe
   #returns true if the Recipe object's name matches the term being looked for, else false
   def me?(term)
     term = term.upcase
-    if(term.eql? @name)
+    if(term.eql? "*")
+      return true
+    elsif(term.eql? @name)
       return true
     else
       return false
     end
   end #me?
 end #end recipe class
-
-
 
 
 class DB
@@ -177,16 +179,20 @@ class DB
   end #export
 
   #returns an array of DB items that match a search query
-  def find(query)
+  def find(query, type = "ALL")
     found = Array.new
-    for recipe in @recipes
-      if recipe.me?(query)
-        found.push(recipe)
+    if((type.eql? "ALL") || (type.eql? "RECIPE"))
+      for recipe in @recipes
+        if recipe.me?(query)
+          found.push(recipe)
+        end
       end
     end
-    for item in @stock
-      if item.me?(query)
-        found.push(item)
+    if((type.eql? "ALL") || (type.eql? "STOCK"))
+      for item in @stock
+        if item.me?(query)
+          found.push(item)
+        end
       end
     end
     if found.length > 0
@@ -215,10 +221,21 @@ end #DB class
 #returns an array of strings that represent the choices available to the user
 def generateChoices(query, db)
   choiceList = Array.new
-  tempList = db.find query
+
+  if(query.eql? "STOCK")
+    #dump all the consumables in stock
+    tempList = db.find("*","STOCK")
+  elsif(query.eql? "RECIPE")
+    #dump all the recipes
+    tempList = db.find("*","RECIPE")
+  else #otherwise, find the relevant stuff
+    tempList = db.find(query)
+  end
+
   for item in tempList
     choiceList.push(item.name)
   end
+
   return choiceList
 end #generateChoices
 
@@ -256,6 +273,25 @@ def assembleItems(type, db)
     end #|item|
   end #loop
 end #assembleItems
+
+def modifyItem
+  
+end
+
+def modifyItemMenu(db)
+  types = ["Stock","Recipe"];
+  choose do |type|
+    type.prompt = "Select an item type to modify: "
+    type.choices(*types) do |typeChosen|
+      choose do |item|
+        item.prompt = "Select the item to modify: "
+        item.choices(*generateChoices("#{typeChosen.upcase}", db)) do |itemChosen|
+          modifyItem(itemChosen)
+        end #itemChosen
+      end #item
+    end #typeChosen
+  end #type
+end #modifyItem
 
 #pass a string to indicate what sort of DB object you want it to make (recipe or stock).
 #function takes user input, builds item and adds it to the db
@@ -334,7 +370,7 @@ def main(db)
         when selection[1]
           add db
         when selection[2]
-          #modify db
+          modifyItemMenu db
         when selection.last
           db.export "db.yaml"
           exit
