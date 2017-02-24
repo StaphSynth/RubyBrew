@@ -274,19 +274,15 @@ def assembleItems(type, db)
   end #loop
 end #assembleItems
 
-def modifyItem
-  
-end
-
+#generates the UI for selecting an item to modify
 def modifyItemMenu(db)
-  types = ["Stock","Recipe"];
   choose do |type|
     type.prompt = "Select an item type to modify: "
-    type.choices(*types) do |typeChosen|
+    type.choices("STOCK","RECIPE") do |typeChosen|
       choose do |item|
         item.prompt = "Select the item to modify: "
         item.choices(*generateChoices("#{typeChosen.upcase}", db)) do |itemChosen|
-          modifyItem(itemChosen)
+          db.modify(itemChosen)
         end #itemChosen
       end #item
     end #typeChosen
